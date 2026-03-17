@@ -8,6 +8,7 @@ import com.imaugar.task_manager_api.dtos.RegisterDTO;
 import com.imaugar.task_manager_api.dtos.LoginDTO;
 import com.imaugar.task_manager_api.dtos.TokenResponseDTO;
 import com.imaugar.task_manager_api.entities.User;
+import com.imaugar.task_manager_api.enums.Role;
 import com.imaugar.task_manager_api.repositories.UserRepository;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 
@@ -31,6 +32,7 @@ public class AuthService {
         user.setUsername(registerData.getUsername());
         user.setEmail(registerData.getEmail());
         user.setPassword(passwordEncoder.encode(registerData.getPassword()));
+        user.setRole(Role.USER);
         //Guardamos el usuario en la base de datos
         userRepository.save(user);
         String token = jwtService.createToken(user);
