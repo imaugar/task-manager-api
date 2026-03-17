@@ -42,6 +42,7 @@ public class SecurityConfig {
                                         "/v3/api-docs/**",
                                         "/v3/api-docs.yaml",
                                         "/webjars/**"
+                                        
                                     ).permitAll()
                 //El resto de rutas requieren auth
                 .anyRequest().authenticated()
