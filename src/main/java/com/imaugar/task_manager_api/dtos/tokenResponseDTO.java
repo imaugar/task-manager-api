@@ -3,10 +3,10 @@ package com.imaugar.task_manager_api.dtos;
 import lombok.Data;
 
 @Data
-public class tokenResponseDTO {
+public class TokenResponseDTO {
     private String token;
 
-    public tokenResponseDTO(String token) {
+    public TokenResponseDTO(String token) {
         this.token = token;
     }
 }
