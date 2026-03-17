@@ -1,8 +1,18 @@
 package com.imaugar.task_manager_api.facades;
 
+import com.imaugar.task_manager_api.dtos.TokenResponseDTO;
+import com.imaugar.task_manager_api.dtos.RegisterDTO;
+import com.imaugar.task_manager_api.dtos.LoginDTO;
 import com.imaugar.task_manager_api.services.AuthService;
+
+import jakarta.validation.Valid;
+
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
 
 
 
@@ -15,8 +25,15 @@ public class AuthController {
         this.authService = authService;
     }
 
-    //TODO: Register endpoint
+    @PostMapping("/register")
+    public ResponseEntity<TokenResponseDTO> register(@Valid @RequestBody RegisterDTO request) {
+            //TODO: Implementar captura de errores HTTP
+        return ResponseEntity.ok(authService.register(request));
+    }
 
-    //TODO: Login endpoint
-    
+    @PostMapping("/login")
+    public ResponseEntity<TokenResponseDTO> login(@Valid @RequestBody LoginDTO request) {
+        //TODO: Implementar captura de errores HTTP
+        return ResponseEntity.ok(authService.login(request));
+    }
 }
