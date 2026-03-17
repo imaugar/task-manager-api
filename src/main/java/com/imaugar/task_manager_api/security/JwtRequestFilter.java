@@ -32,13 +32,14 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
         final String authHeader = request.getHeader("Authorization");
 
-        String token = authHeader.substring(7);
-        String username = jwtService.getUsernameFromToken(token);
-
+        //Para evitar el error NullPOinterException al intentar extraer el token de un header nulo o que no empieza por "Bearer "
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             chain.doFilter(request, response);
             return;
         }
+
+        String token = authHeader.substring(7);
+        String username = jwtService.getUsernameFromToken(token);
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userDetailService.loadUserByUsername(username);

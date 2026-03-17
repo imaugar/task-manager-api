@@ -36,6 +36,13 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 // Si la ruta empieza por la de auth, no requiere autenticación previa
                 .requestMatchers("/api/auth/**").permitAll()
+                    .requestMatchers(
+                                        "/swagger-ui/**",
+                                        "/swagger-ui.html",
+                                        "/v3/api-docs/**",
+                                        "/v3/api-docs.yaml",
+                                        "/webjars/**"
+                                    ).permitAll()
                 //El resto de rutas requieren auth
                 .anyRequest().authenticated()
             )
