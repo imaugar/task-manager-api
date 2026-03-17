@@ -3,7 +3,6 @@ package com.imaugar.task_manager_api.security;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.imaugar.task_manager_api.repositories.UserRepository;
 import com.imaugar.task_manager_api.services.JwtService;
 import com.imaugar.task_manager_api.services.UserDetailService;
 

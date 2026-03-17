@@ -2,7 +2,6 @@ package com.imaugar.task_manager_api.services;
 
 import org.springframework.stereotype.Service;
 import com.imaugar.task_manager_api.repositories.UserRepository;
-import com.imaugar.task_manager_api.entities.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
