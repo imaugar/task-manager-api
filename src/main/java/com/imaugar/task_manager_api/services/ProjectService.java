@@ -12,7 +12,9 @@ import com.imaugar.task_manager_api.entities.User;
 import java.util.List;
 
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
 
+@Service
 public class ProjectService {
     
     private final ProjectRepository projectRepository;
@@ -23,16 +25,20 @@ public class ProjectService {
         this.userRepository = userRepository;
     }
     
-    // Crear un proyecto
+    // Crear un proyecto (solo admin)
     public ProjectResponseDTO createProject(ProjectDTO project){
         //Conseguir datos del admin
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        User admin = userRepository.findByUsername(username).orElseThrow();
+        User user = userRepository.findByUsername(username).orElseThrow();
+
+        if (user.getRole() != Role.ADMIN) {
+            throw new AccessDeniedException("Solo los administradores pueden crear proyectos");
+        }
 
         Project newProject = new Project();
         newProject.setName(project.getName());
         newProject.setDescription(project.getDescription());
-        newProject.getMembers().add(admin);
+        newProject.getMembers().add(user);
 
         // Guardar el proyecto en la base de datos
         projectRepository.save(newProject);
@@ -49,10 +55,15 @@ public class ProjectService {
         .toList();
     }
 
-    //Añadir usuario a proyecto
+    //Añadir usuario a proyecto (solo admin)
     public ProjectResponseDTO addMemberToProject(Long projectId, String username){
         Project project = projectRepository.findById(projectId).orElseThrow();
         User user = userRepository.findByUsername(username).orElseThrow();
+
+        if (user.getRole() != Role.ADMIN) {
+            throw new AccessDeniedException("Solo los administradores pueden añadir miembros a proyectos");
+        }
+
         project.getMembers().add(user);
         projectRepository.save(project);
         return toDTO(project);
