@@ -8,9 +8,9 @@ import com.imaugar.task_manager_api.repositories.ProjectRepository;
 import com.imaugar.task_manager_api.repositories.UserRepository;
 import com.imaugar.task_manager_api.entities.Project;
 import com.imaugar.task_manager_api.entities.User;
-
+import com.imaugar.task_manager_api.enums.Role;
+import org.springframework.security.access.AccessDeniedException;
 import java.util.List;
-
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 

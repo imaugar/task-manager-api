@@ -5,6 +5,15 @@ import org.springframework.stereotype.Service;
 import com.imaugar.task_manager_api.repositories.UserRepository;
 import com.imaugar.task_manager_api.repositories.ProjectRepository;
 import com.imaugar.task_manager_api.repositories.TaskRepository;
+import com.imaugar.task_manager_api.dtos.TaskDTO;
+import com.imaugar.task_manager_api.dtos.TaskResponseDTO;
+import com.imaugar.task_manager_api.entities.Task;
+import com.imaugar.task_manager_api.entities.User;
+import com.imaugar.task_manager_api.enums.Role;
+import com.imaugar.task_manager_api.enums.TaskStatus;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.context.SecurityContextHolder;
+import java.util.List;
 
 @Service
 public class TaskService {
@@ -20,7 +29,7 @@ public class TaskService {
     
     //Crear task (solo admin)
     public TaskResponseDTO createTask(TaskDTO task) {
-        string username = SecurityContextHolder.getContext().getAuthentication().getName();
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userRepository.findByUsername(username).orElseThrow();
 
         if (projectRepository.existsById(task.getProjectId())) {
@@ -41,8 +50,7 @@ public class TaskService {
                 throw new AccessDeniedException("Solo los administradores pueden crear tareas");
             }
         } else {
-            throw new ResourceNotFoundException("El proyecto no ha sido encontrado");
-
+            throw new IllegalArgumentException("El proyecto especificado no existe");
         }
     }
 
@@ -103,7 +111,7 @@ public class TaskService {
         dto.setDescription(task.getDescription());
         dto.setProjectId(task.getProject().getId());
         if (task.getAssignedUser() != null) {
-            dto.setAssignedUserId(task.getAssignedUser().getId());
+            dto.setAssignedUserName(task.getAssignedUser().getUsername());
         }
         return dto;
     }

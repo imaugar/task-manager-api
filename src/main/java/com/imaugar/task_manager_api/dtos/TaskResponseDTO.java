@@ -13,6 +13,9 @@ public class TaskResponseDTO {
     private String assignedUserName;
     private Long projectId;
 
+    public TaskResponseDTO() {
+    }
+
     public TaskResponseDTO(Long id, String name, String description, TaskStatus status, String assignedUserName, Long projectId) {
         this.id = id;
         this.name = name;
