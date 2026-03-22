@@ -29,26 +29,20 @@ public class TaskService {
     
     //Crear task (solo admin)
     public TaskResponseDTO createTask(TaskDTO task) {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        User user = userRepository.findByUsername(username).orElseThrow();
-
         if (projectRepository.existsById(task.getProjectId())) {
-            if (user.getRole() == Role.ADMIN) {
-                Task newTask = new Task();
-                newTask.setName(task.getName());
-                newTask.setDescription(task.getDescription());
-                newTask.setProject(projectRepository.findById(task.getProjectId()).orElseThrow());
+            Task newTask = new Task();
+            newTask.setName(task.getName());
+            newTask.setDescription(task.getDescription());
+            newTask.setProject(projectRepository.findById(task.getProjectId()).orElseThrow());
 
-                if (task.getAssignedUserId() != null) {
-                    User assignedUser = userRepository.findById(task.getAssignedUserId()).orElseThrow();
-                    newTask.setAssignedUser(assignedUser);
-                }
-
-                Task savedTask = taskRepository.save(newTask);
-                return toDTO(savedTask);
-            } else {
-                throw new AccessDeniedException("Solo los administradores pueden crear tareas");
+            if (task.getAssignedUserId() != null) {
+                User assignedUser = userRepository.findById(task.getAssignedUserId()).orElseThrow();
+                newTask.setAssignedUser(assignedUser);
             }
+
+            Task savedTask = taskRepository.save(newTask);
+            return toDTO(savedTask);
+
         } else {
             throw new IllegalArgumentException("El proyecto especificado no existe");
         }
@@ -92,7 +86,7 @@ public class TaskService {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userRepository.findByUsername(username).orElseThrow();
 
-        if (user.getRole() != Role.ADMIN || !projectRepository.findById(taskRepository.findById(taskId).orElseThrow().getProject().getId()).orElseThrow().getMembers().contains(user)) {
+        if (!projectRepository.findById(taskRepository.findById(taskId).orElseThrow().getProject().getId()).orElseThrow().getMembers().contains(user)) {
             throw new AccessDeniedException("Solo los administradores que pertenecen al proyecto pueden asignar tareas a usuarios");
         }
 

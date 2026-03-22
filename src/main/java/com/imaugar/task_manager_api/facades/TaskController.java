@@ -1,6 +1,7 @@
 package com.imaugar.task_manager_api.facades;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,6 +27,7 @@ public class TaskController {
 
     //Crear tarea (solo admin)
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<TaskResponseDTO> createTask(@RequestBody TaskDTO task) {
         TaskResponseDTO createdTask = taskService.createTask(task);
         return ResponseEntity.ok(createdTask);
@@ -51,6 +53,7 @@ public class TaskController {
 
     //Asignar tarea a usuario (solo admin)
     @PutMapping("/{taskId}/assign")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<TaskResponseDTO> assignTaskToUser(@PathVariable Long taskId, @RequestBody Long userId) {
         return ResponseEntity.ok(taskService.assignTaskToMember(taskId, userId));
     }

@@ -31,10 +31,6 @@ public class ProjectService {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userRepository.findByUsername(username).orElseThrow();
 
-        if (user.getRole() != Role.ADMIN) {
-            throw new AccessDeniedException("Solo los administradores pueden crear proyectos");
-        }
-
         Project newProject = new Project();
         newProject.setName(project.getName());
         newProject.setDescription(project.getDescription());
@@ -59,10 +55,6 @@ public class ProjectService {
     public ProjectResponseDTO addMemberToProject(Long projectId, String username){
         Project project = projectRepository.findById(projectId).orElseThrow();
         User user = userRepository.findByUsername(username).orElseThrow();
-
-        if (user.getRole() != Role.ADMIN) {
-            throw new AccessDeniedException("Solo los administradores pueden añadir miembros a proyectos");
-        }
 
         project.getMembers().add(user);
         projectRepository.save(project);
