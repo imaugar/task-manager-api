@@ -38,7 +38,7 @@ Para detener y eliminar los contenedores:
 docker compose down
 ```
 
-## 💻 Entorno de Desarrollo Local
+## Entorno de Desarrollo Local
 
 El proyecto cuenta con la dependencia `spring-boot-docker-compose`, lo que facilita enormemente el desarrollo local. 
 
@@ -55,7 +55,7 @@ Spring Boot detectará automáticamente el archivo `compose.yaml`, levantará el
 - **Usuario:** `admin`
 - **Contraseña:** `admin`
 
-## 📖 Documentación de la API
+## Documentación de la API
 
 La aplicación incluye Swagger UI para explorar y probar los endpoints de la API de forma interactiva. 
 
@@ -65,7 +65,7 @@ http://localhost:8080/swagger-ui.html
 ```
 *(El puerto `8080` es el predeterminado, asegúrate de utilizar el puerto correspondiente si lo has modificado).*
 
-## 🔒 Autenticación y Seguridad
+## Autenticación y Seguridad
 
 Esta API está protegida con **Spring Security** y **JWT**.
 Por lo general, el flujo es el siguiente:
@@ -73,7 +73,7 @@ Por lo general, el flujo es el siguiente:
 2. Obtener un token JWT de la respuesta.
 3. Incluir el token en la cabecera HTTP de las siguientes peticiones como: `Authorization: Bearer <tu_token>`.
 
-## ⚙️ Funcionalidad de la API
+## Funcionalidad de la API
 
 La API gestiona **Usuarios**, **Proyectos** y **Tareas**, y aplica un sistema de control de acceso basado en roles (RBAC).
 
