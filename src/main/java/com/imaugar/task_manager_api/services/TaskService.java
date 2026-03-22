@@ -9,7 +9,6 @@ import com.imaugar.task_manager_api.dtos.TaskDTO;
 import com.imaugar.task_manager_api.dtos.TaskResponseDTO;
 import com.imaugar.task_manager_api.entities.Task;
 import com.imaugar.task_manager_api.entities.User;
-import com.imaugar.task_manager_api.enums.Role;
 import com.imaugar.task_manager_api.enums.TaskStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;

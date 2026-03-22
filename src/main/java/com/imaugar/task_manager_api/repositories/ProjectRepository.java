@@ -4,10 +4,10 @@ import com.imaugar.task_manager_api.entities.Project;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
+import java.util.List;
 
 @Repository
 public interface ProjectRepository extends JpaRepository<Project, Long> {
     //Encontrar proyecto por id de miembro
-    Optional<Project> findByMemberId(Long memberId);
+    List<Project> findByMembersId(Long memberId);
 }
