@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import com.imaugar.task_manager_api.dtos.ProjectDTO;
@@ -24,7 +25,7 @@ public class ProjectController {
 
     //Crear proyecto (solo admin)
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ProjectResponseDTO createProject(@RequestBody ProjectDTO project) {
         return projectService.createProject(project);
     }
@@ -37,8 +38,8 @@ public class ProjectController {
 
     //Añadir miembro a proyecto (solo admin)
     @PostMapping("/{projectId}/addmember")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ProjectResponseDTO> addMember(@PathVariable Long projectId, @RequestBody String username) {
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    public ResponseEntity<ProjectResponseDTO> addMember(@PathVariable Long projectId, @RequestParam String username) {
         projectService.addMemberToProject(projectId, username);
         return ResponseEntity.ok().build();
     }

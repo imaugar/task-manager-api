@@ -37,10 +37,10 @@ public class Project {
         joinColumns = @JoinColumn(name="project_id"),
         inverseJoinColumns = @JoinColumn(name="user_id")
     )
-    private List<User> members;
+    private List<User> members = new java.util.ArrayList<>();
 
     //Tareas asociadas al proyecto
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
-    private List<Task> tasks;
+    private List<Task> tasks = new java.util.ArrayList<>();
 
 }

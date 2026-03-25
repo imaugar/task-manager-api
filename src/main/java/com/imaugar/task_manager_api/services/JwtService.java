@@ -29,6 +29,7 @@ public class JwtService {
                 .stream()
                 .findFirst()
                 .map(GrantedAuthority::getAuthority)
+                .map(auth -> auth.replace("ROLE_", "")) // Eliminar el prefijo ROLE_
                 .orElseThrow(() -> new IllegalArgumentException("El usuario no tiene rol asignado"));
 
         return Jwts.builder()
@@ -50,9 +51,9 @@ public class JwtService {
         return Role.valueOf(role);        
     }
 
-    // Devuelve el rol como GrantedAuthority para el SecurityContext
+    // Devuelve el rol (CON PREFIJO ROLE_) como GrantedAuthority para el SecurityContext
     public GrantedAuthority getAuthorityFromToken(String token) {
-        return new SimpleGrantedAuthority(getRoleFromToken(token).name());
+        return new SimpleGrantedAuthority("ROLE_" + getRoleFromToken(token).name());
     }
 
     public boolean validateToken(String token, UserDetails userDetails) {

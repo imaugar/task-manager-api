@@ -1,6 +1,5 @@
 package com.imaugar.task_manager_api.security;
 
-import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.imaugar.task_manager_api.services.JwtService;
@@ -14,12 +13,9 @@ import java.io.IOException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.GrantedAuthority;
-import java.util.List;
 
 
 //Verifiica si el token es válido en cada petición
-@Component
 public class JwtRequestFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
@@ -46,10 +42,8 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             UserDetails userDetails = userDetailService.loadUserByUsername(username);
 
             if (jwtService.validateToken(token, userDetails)) {
-                GrantedAuthority authority = jwtService.getAuthorityFromToken(token);
-
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                    userDetails, null, List.of(authority)
+                    userDetails, null, userDetails.getAuthorities()
                 );
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }
