@@ -14,6 +14,8 @@ import java.io.IOException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.GrantedAuthority;
+import java.util.List;
 
 
 //Verifiica si el token es válido en cada petición
@@ -32,7 +34,6 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
         final String authHeader = request.getHeader("Authorization");
 
-        //Para evitar el error NullPOinterException al intentar extraer el token de un header nulo o que no empieza por "Bearer "
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             chain.doFilter(request, response);
             return;
@@ -45,8 +46,10 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             UserDetails userDetails = userDetailService.loadUserByUsername(username);
 
             if (jwtService.validateToken(token, userDetails)) {
+                GrantedAuthority authority = jwtService.getAuthorityFromToken(token);
+
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                    userDetails, null, userDetails.getAuthorities()
+                    userDetails, null, List.of(authority)
                 );
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }
@@ -54,5 +57,4 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
         chain.doFilter(request, response);
     }
-
 }
