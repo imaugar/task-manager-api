@@ -1,6 +1,6 @@
 # Task Manager API
 
-API Rest para gestión de tareas construida con Spring Boot. Este proyecto incluye autenticación mediante JWT y uso de Spring Security, persistencia de datos con PostgreSQL y contenerización utilizando docker.
+API Rest para gestión de tareas construida con Spring Boot. Este proyecto incluye autenticación mediante JWT y uso de Spring Security, persistencia de datos con PostgreSQL y contenerización utilizando docker. **PROYECTO NO ACABADO**
 
 ## Tecnologías
 
@@ -18,21 +18,19 @@ API Rest para gestión de tareas construida con Spring Boot. Este proyecto inclu
 
 ## Ejecución del Proyecto (Docker Compose)
 
-El archivo `compose.yaml` (o `docker-compose.yml`) está diseñado para orquestar **dos contenedores**:
+El archivo `compose.yaml` está diseñado para orquestar **un contenedor**:
 1. **postgres**: Contenedor con la base de datos relacional PostgreSQL.
-2. **api**: Contenedor con la aplicación Spring Boot.
 
-Para construir la imagen de la API y levantar ambos servicios, ejecuta el siguiente comando en la raíz del proyecto:
+Para construir la imagen y levantar el servicio, ejecuta el siguiente comando en la raíz del proyecto:
 
 ```bash
-docker compose up -d --build
+docker compose up -d
 ```
 
 Esto iniciará:
 - La base de datos PostgreSQL expuesta en el puerto `5432`.
-- La API de Spring Boot, típicamente expuesta en el puerto `8080`.
 
-Para detener y eliminar los contenedores:
+Para detener y eliminar el contenedor:
 
 ```bash
 docker compose down
