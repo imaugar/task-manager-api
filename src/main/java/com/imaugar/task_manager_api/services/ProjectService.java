@@ -54,6 +54,9 @@ public class ProjectService {
         Project project = projectRepository.findById(projectId).orElseThrow();
         User user = userRepository.findByUsername(username).orElseThrow();
 
+        if (project.getMembers().stream().anyMatch(m -> m.getId().equals(user.getId()))) {
+            return toDTO(project);
+        }
         project.getMembers().add(user);
         projectRepository.save(project);
         return toDTO(project);

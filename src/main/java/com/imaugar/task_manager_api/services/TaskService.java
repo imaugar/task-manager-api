@@ -28,23 +28,20 @@ public class TaskService {
     
     //Crear task (solo admin)
     public TaskResponseDTO createTask(TaskDTO task) {
-        if (projectRepository.existsById(task.getProjectId())) {
-            Task newTask = new Task();
-            newTask.setName(task.getName());
-            newTask.setDescription(task.getDescription());
-            newTask.setProject(projectRepository.findById(task.getProjectId()).orElseThrow());
+        Task newTask = new Task();
+        newTask.setName(task.getName());
+        newTask.setDescription(task.getDescription());
+        newTask.setStatus(TaskStatus.PENDING);
+        newTask.setProject(projectRepository.findById(task.getProjectId())
+                .orElseThrow(() -> new IllegalArgumentException("El proyecto especificado no existe")));
 
-            if (task.getAssignedUserId() != null) {
-                User assignedUser = userRepository.findById(task.getAssignedUserId()).orElseThrow();
-                newTask.setAssignedUser(assignedUser);
-            }
-
-            Task savedTask = taskRepository.save(newTask);
-            return toDTO(savedTask);
-
-        } else {
-            throw new IllegalArgumentException("El proyecto especificado no existe");
+        if (task.getAssignedUserId() != null) {
+            User assignedUser = userRepository.findById(task.getAssignedUserId()).orElseThrow();
+            newTask.setAssignedUser(assignedUser);
         }
+
+        Task savedTask = taskRepository.save(newTask);
+        return toDTO(savedTask);
     }
 
     //Obtener tareas de proyecto
@@ -71,7 +68,7 @@ public class TaskService {
         User user = userRepository.findByUsername(username).orElseThrow();
         Task task = taskRepository.findById(taskId).orElseThrow();
 
-        if(task.getAssignedUser().getId().equals(user.getId())){
+        if(task.getAssignedUser() != null && task.getAssignedUser().getId().equals(user.getId())){
             task.setStatus(updatedStatus);
             Task updatedTask = taskRepository.save(task);
             return toDTO(updatedTask);
@@ -85,11 +82,11 @@ public class TaskService {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userRepository.findByUsername(username).orElseThrow();
 
-        if (!projectRepository.findById(taskRepository.findById(taskId).orElseThrow().getProject().getId()).orElseThrow().getMembers().contains(user)) {
+        Task task = taskRepository.findById(taskId).orElseThrow();
+
+        if (projectRepository.findById(task.getProject().getId()).orElseThrow().getMembers().stream().noneMatch(m -> m.getId().equals(user.getId()))) {
             throw new AccessDeniedException("Solo los administradores que pertenecen al proyecto pueden asignar tareas a usuarios");
         }
-
-        Task task = taskRepository.findById(taskId).orElseThrow();
         User assignedUser = userRepository.findById(userId).orElseThrow();
         task.setAssignedUser(assignedUser);
         Task updatedTask = taskRepository.save(task);
@@ -102,6 +99,7 @@ public class TaskService {
         dto.setId(task.getId());
         dto.setName(task.getName());
         dto.setDescription(task.getDescription());
+        dto.setStatus(task.getStatus());
         dto.setProjectId(task.getProject().getId());
         if (task.getAssignedUser() != null) {
             dto.setAssignedUserName(task.getAssignedUser().getUsername());
