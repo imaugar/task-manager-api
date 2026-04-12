@@ -1,6 +1,13 @@
 # Task Manager API
 
-API Rest para gestión de tareas construida con Spring Boot. Este proyecto incluye autenticación mediante JWT y uso de Spring Security, persistencia de datos con PostgreSQL y contenerización utilizando docker. **PROYECTO NO ACABADO**
+API Rest para gestión de tareas construida con Spring Boot. Este proyecto incluye autenticación mediante JWT y uso de Spring Security, persistencia de datos con PostgreSQL y contenerización utilizando docker. 
+
+![Status](https://img.shields.io/badge/status-in%20development-yellow)
+
+### 🔨 Siguientes Steps
+- Documentación de la API con Swagger
+- Frontend (HTML, CSS, JavaScript)
+
 
 ## Tecnologías
 
