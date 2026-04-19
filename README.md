@@ -1,6 +1,6 @@
 # Task Manager API
 
-API Rest para gestión de tareas construida con Spring Boot. Este proyecto incluye autenticación mediante JWT y uso de Spring Security, persistencia de datos con PostgreSQL y contenerización utilizando docker. **PROYECTO NO ACABADO**
+API Rest para gestión de tareas construida con Spring Boot. Este proyecto incluye autenticación mediante JWT y uso de Spring Security, persistencia de datos con PostgreSQL y contenerización utilizando Docker. **PROYECTO EN DESARROLLO**
 
 ## Tecnologías
 
@@ -9,90 +9,155 @@ API Rest para gestión de tareas construida con Spring Boot. Este proyecto inclu
 - **PostgreSQL** (Base de datos)
 - **JJWT** (Generación y validación de tokens JWT)
 - **Springdoc OpenAPI (Swagger)** (Documentación)
-- **Docker y Docker Compose** 
+- **Docker y Docker Compose**
 
 ## Requisitos Previos
 
-- [Docker](https://www.docker.com/get-started) y Docker Compose instalados en tu sistema.
-- *(Opcional, para desarrollo local)* Java 21 y Maven.
+- [Docker](https://www.docker.com/get-started) y Docker Compose instalados.
+- *(Opcional, solo para desarrollo local sin Docker)* Java 21 y Maven.
 
-## Ejecución del Proyecto (Docker Compose)
+---
 
-El archivo `compose.yaml` está diseñado para orquestar **un contenedor**:
-1. **postgres**: Contenedor con la base de datos relacional PostgreSQL.
+## Ejecución con Docker Compose (recomendado)
 
-Para construir la imagen y levantar el servicio, ejecuta el siguiente comando en la raíz del proyecto:
+El archivo `compose.yaml` levanta dos contenedores:
+1. **postgres** — Base de datos PostgreSQL en el puerto `5432`.
+2. **app** — La aplicación Spring Boot en el puerto `8080`.
+
+### 1. Clonar el repositorio
 
 ```bash
-docker compose up -d
+git clone https://github.com/imaugar/task-manager-api.git
+cd task-manager-api
 ```
 
-Esto iniciará:
-- La base de datos PostgreSQL expuesta en el puerto `5432`.
+### 2. (Opcional) Configurar variables de entorno
 
-Para detener y eliminar el contenedor:
+Por defecto la aplicación usa valores seguros para desarrollo. Si quieres personalizarlos, crea un archivo `.env` en la raíz del proyecto:
+
+```env
+JWT_SECRET=tu_clave_secreta_aqui
+JWT_EXPIRATION=86400000
+```
+
+> Si no creas el `.env`, se usarán los valores predeterminados definidos en `compose.yaml`.
+
+### 3. Construir y levantar los contenedores
+
+```bash
+docker compose up --build -d
+```
+
+- `--build` compila la imagen de la aplicación (necesario la primera vez o tras cambios en el código).
+- `-d` ejecuta los contenedores en segundo plano.
+
+La aplicación tardará unos segundos en arrancar mientras espera a que PostgreSQL esté listo.
+
+### 4. Verificar que está corriendo
+
+```bash
+docker compose logs -f app
+```
+
+Cuando veas una línea como `Started TaskManagerApiApplication`, la API estará lista.
+
+### 5. Detener los contenedores
 
 ```bash
 docker compose down
 ```
 
-## Entorno de Desarrollo Local
+Para eliminar también los datos persistidos de la base de datos:
 
-El proyecto cuenta con la dependencia `spring-boot-docker-compose`, lo que facilita enormemente el desarrollo local. 
+```bash
+docker compose down -v
+```
 
-Si ejecutas la aplicación desde tu IDE o mediante Maven:
+---
+
+## Ejecución en Desarrollo Local (sin Docker para la app)
+
+Si prefieres ejecutar la aplicación directamente desde tu IDE o Maven, necesitas levantar solo la base de datos:
+
+```bash
+docker compose up postgres -d
+```
+
+Luego ejecuta la aplicación:
 
 ```bash
 ./mvnw spring-boot:run
 ```
 
-Spring Boot detectará automáticamente el archivo `compose.yaml`, levantará el contenedor de base de datos necesario y configurará las credenciales automáticamente para la aplicación. 
+La configuración en `application.properties` apunta a `localhost:5432` con usuario `admin` y contraseña `admin`, que coincide con el contenedor de postgres.
 
-### Variables de entorno por defecto en PostgreSQL:
-- **Base de datos:** `task_manager`
-- **Usuario:** `admin`
-- **Contraseña:** `admin`
+---
 
-## Documentación de la API
+## Documentación de la API (Swagger)
 
-La aplicación incluye Swagger UI para explorar y probar los endpoints de la API de forma interactiva. 
+Una vez que la aplicación esté corriendo, accede a Swagger UI en:
 
-Una vez que la aplicación esté ejecutándose, visita:
-```text
+```
 http://localhost:8080/swagger-ui.html
 ```
-*(El puerto `8080` es el predeterminado, asegúrate de utilizar el puerto correspondiente si lo has modificado).*
+
+---
 
 ## Autenticación y Seguridad
 
-Esta API está protegida con **Spring Security** y **JWT**.
-Por lo general, el flujo es el siguiente:
-1. Registrar un usuario o iniciar sesión a través del endpoint de enrutamiento público (ej. `/api/auth/login`).
-2. Obtener un token JWT de la respuesta.
-3. Incluir el token en la cabecera HTTP de las siguientes peticiones como: `Authorization: Bearer <tu_token>`.
+Esta API está protegida con **Spring Security** y **JWT**. El flujo de autenticación es el siguiente:
+
+1. Registrar un usuario via `POST /api/auth/register`.
+2. Iniciar sesión via `POST /api/auth/login` y obtener el token JWT de la respuesta.
+3. Incluir el token en la cabecera de todas las peticiones siguientes:
+   ```
+   Authorization: Bearer <token>
+   ```
+
+---
 
 ## Funcionalidad de la API
 
-La API gestiona **Usuarios**, **Proyectos** y **Tareas**, y aplica un sistema de control de acceso basado en roles (RBAC).
+La API gestiona **Usuarios**, **Proyectos** y **Tareas** con control de acceso basado en roles (RBAC).
 
-### Roles Principales:
-- **ADMIN**: Tiene control total. Puede crear proyectos, asignar usuarios a proyectos, crear tareas y asignar tareas a miembros.
-- **USER**: Puede ver los proyectos a los que pertenece, consultar las tareas que tiene asignadas y modificar el estado de las tareas que se le han asignado.
+### Roles
 
-### Endpoints Principales:
+- **ADMIN**: Control total. Puede crear proyectos, añadir miembros, crear tareas y asignarlas.
+- **USER**: Puede ver sus proyectos, consultar sus tareas asignadas y actualizar el estado de las mismas.
 
-#### 🔐 Autenticación (`/api/auth`)
-- `POST /register`: Registro de un nuevo usuario. Devuelve un token JWT.
-- `POST /login`: Inicio de sesión de usuario y obtención del token.
+> **Nota:** En Spring Boot 4 no está activado por defecto el trailing slash. Usar siempre las rutas **sin** barra final (ej. `/api/projects`, no `/api/projects/`).
 
-#### 📂 Proyectos (`/api/projects`)
-- `POST /`: Crear un nuevo proyecto *(solo ADMIN)*.
-- `GET /`: Obtener los proyectos a los que el usuario logueado pertenece.
-- `POST /{projectId}/addmember`: Añadir un miembro a un proyecto *(solo ADMIN)*.
+### Credenciales de administrador por defecto
 
-#### 📝 Tareas (`/api/tasks`)
-- `POST /`: Crear una nueva tarea en el sistema *(solo ADMIN)*.
-- `GET /project/{projectId}`: Mostrar todas las tareas que pertenecen al proyecto.
-- `GET /mytasks`: Obtener todas las tareas asignadas al usuario logueado.
-- `PUT /{taskId}/assign`: Asignar una tarea a un usuario *(solo ADMIN)*.
-- `PUT /{taskId}/status`: Actualizar el estado de una tarea *(solo el usuario asignado)*.
+El sistema crea automáticamente dos usuarios admin al arrancar:
+
+| Username | Password |
+|----------|----------|
+| `admin`  | `admin`  |
+| `admin2` | `admin2` |
+
+Los usuarios registrados via `/api/auth/register` siempre obtienen rol `USER`. Para obtener rol `ADMIN` hay que usar las credenciales anteriores o hardcodear unas nuevas en el DataInitializer.
+
+### Endpoints
+
+#### Autenticación (`/api/auth`)
+| Método | Ruta | Body | Acceso |
+|--------|------|------|--------|
+| `POST` | `/api/auth/register` | `{"username","email","password"}` | Público |
+| `POST` | `/api/auth/login` | `{"username","password"}` | Público |
+
+#### Proyectos (`/api/projects`)
+| Método | Ruta | Body / Params | Acceso |
+|--------|------|---------------|--------|
+| `POST` | `/api/projects` | `{"name","description"}` | ADMIN |
+| `GET` | `/api/projects` | — | Autenticado |
+| `POST` | `/api/projects/{projectId}/addmember` | `?username=<username>` | ADMIN |
+
+#### Tareas (`/api/tasks`)
+| Método | Ruta | Body / Params | Acceso |
+|--------|------|---------------|--------|
+| `POST` | `/api/tasks` | `{"name","description","projectId"}` | ADMIN |
+| `GET` | `/api/tasks/project/{projectId}` | — | Autenticado |
+| `GET` | `/api/tasks/mytasks` | — | Autenticado |
+| `PUT` | `/api/tasks/{taskId}/assign` | Body: `<userId>` (número) | ADMIN |
+| `PUT` | `/api/tasks/{taskId}/status` | `{"status":"PENDING\|IN_PROGRESS\|COMPLETED"}` | Usuario asignado |
