@@ -1,5 +1,7 @@
 package com.imaugar.task_manager_api.security;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.imaugar.task_manager_api.dtos.ErrorResponseDTO;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -17,6 +19,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.http.MediaType;
 
 //Necesario para usar @PreAuthorize en los controllers
 @EnableMethodSecurity
@@ -51,6 +54,14 @@ public class SecurityConfig {
             )
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            )
+            .exceptionHandling(ex -> ex
+                .authenticationEntryPoint((request, response, authException) -> {
+                    response.setStatus(401);
+                    response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                    new ObjectMapper().writeValue(response.getWriter(),
+                            new ErrorResponseDTO(401, "Unauthorized", "No hay token."));
+                })
             )
             .addFilterBefore(
                 new JwtRequestFilter(jwtService, userDetailService),

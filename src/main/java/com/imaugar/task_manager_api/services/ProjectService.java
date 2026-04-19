@@ -1,9 +1,8 @@
 package com.imaugar.task_manager_api.services;
 
 import com.imaugar.task_manager_api.dtos.ProjectResponseDTO;
-
-
 import com.imaugar.task_manager_api.dtos.ProjectDTO;
+import com.imaugar.task_manager_api.exceptions.ResourceNotFoundException;
 import com.imaugar.task_manager_api.repositories.ProjectRepository;
 import com.imaugar.task_manager_api.repositories.UserRepository;
 import com.imaugar.task_manager_api.entities.Project;
@@ -27,7 +26,8 @@ public class ProjectService {
     public ProjectResponseDTO createProject(ProjectDTO project){
         //Conseguir datos del admin
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        User user = userRepository.findByUsername(username).orElseThrow();
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado: " + username));
 
         Project newProject = new Project();
         newProject.setName(project.getName());
@@ -42,7 +42,8 @@ public class ProjectService {
     //Encontrar proyecto donde está el usuario
     public List<ProjectResponseDTO> getProjectsForUser(){
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        User user = userRepository.findByUsername(username).orElseThrow();
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado: " + username));
         return projectRepository.findByMembersId(user.getId())
         .stream()
         .map(project -> toDTO(project))
@@ -51,8 +52,10 @@ public class ProjectService {
 
     //Añadir usuario a proyecto (solo admin)
     public ProjectResponseDTO addMemberToProject(Long projectId, String username){
-        Project project = projectRepository.findById(projectId).orElseThrow();
-        User user = userRepository.findByUsername(username).orElseThrow();
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new ResourceNotFoundException("Proyecto no encontrado con id: " + projectId));
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado: " + username));
 
         if (project.getMembers().stream().anyMatch(m -> m.getId().equals(user.getId()))) {
             return toDTO(project);

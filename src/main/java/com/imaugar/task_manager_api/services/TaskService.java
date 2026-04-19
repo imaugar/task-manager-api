@@ -2,6 +2,7 @@ package com.imaugar.task_manager_api.services;
 
 import org.springframework.stereotype.Service;
 
+import com.imaugar.task_manager_api.exceptions.ResourceNotFoundException;
 import com.imaugar.task_manager_api.repositories.UserRepository;
 import com.imaugar.task_manager_api.repositories.ProjectRepository;
 import com.imaugar.task_manager_api.repositories.TaskRepository;
@@ -33,10 +34,11 @@ public class TaskService {
         newTask.setDescription(task.getDescription());
         newTask.setStatus(TaskStatus.PENDING);
         newTask.setProject(projectRepository.findById(task.getProjectId())
-                .orElseThrow(() -> new IllegalArgumentException("El proyecto especificado no existe")));
+                .orElseThrow(() -> new ResourceNotFoundException("Proyecto no encontrado con id: " + task.getProjectId())));
 
         if (task.getAssignedUserId() != null) {
-            User assignedUser = userRepository.findById(task.getAssignedUserId()).orElseThrow();
+            User assignedUser = userRepository.findById(task.getAssignedUserId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con id: " + task.getAssignedUserId()));
             newTask.setAssignedUser(assignedUser);
         }
 
@@ -55,7 +57,8 @@ public class TaskService {
     //Obtener tareas asignadas a usuario
     public List<TaskResponseDTO> getTasksForUser() {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        User user = userRepository.findByUsername(username).orElseThrow();
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado: " + username));
         return taskRepository.findByAssignedUserId(user.getId())
         .stream()
         .map(task -> toDTO(task))
@@ -65,8 +68,10 @@ public class TaskService {
     //Modificar el estado de una tarea (usuario asignado)
     public TaskResponseDTO updateTaskStatus(Long taskId, TaskStatus updatedStatus){
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        User user = userRepository.findByUsername(username).orElseThrow();
-        Task task = taskRepository.findById(taskId).orElseThrow();
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado: " + username));
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new ResourceNotFoundException("Tarea no encontrada con id: " + taskId));
 
         if(task.getAssignedUser() != null && task.getAssignedUser().getId().equals(user.getId())){
             task.setStatus(updatedStatus);
@@ -80,14 +85,17 @@ public class TaskService {
     //Asignar tarea a usuario (solo admin y además miembro del proyecto)
     public TaskResponseDTO assignTaskToMember(Long taskId, Long userId){
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        User user = userRepository.findByUsername(username).orElseThrow();
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado: " + username));
 
-        Task task = taskRepository.findById(taskId).orElseThrow();
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new ResourceNotFoundException("Tarea no encontrada con id: " + taskId));
 
         if (projectRepository.findById(task.getProject().getId()).orElseThrow().getMembers().stream().noneMatch(m -> m.getId().equals(user.getId()))) {
             throw new AccessDeniedException("Solo los administradores que pertenecen al proyecto pueden asignar tareas a usuarios");
         }
-        User assignedUser = userRepository.findById(userId).orElseThrow();
+        User assignedUser = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con id: " + userId));
         task.setAssignedUser(assignedUser);
         Task updatedTask = taskRepository.save(task);
         return toDTO(updatedTask);

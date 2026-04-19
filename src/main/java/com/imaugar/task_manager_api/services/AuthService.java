@@ -9,6 +9,7 @@ import com.imaugar.task_manager_api.dtos.LoginDTO;
 import com.imaugar.task_manager_api.dtos.TokenResponseDTO;
 import com.imaugar.task_manager_api.entities.User;
 import com.imaugar.task_manager_api.enums.Role;
+import com.imaugar.task_manager_api.exceptions.ResourceNotFoundException;
 import com.imaugar.task_manager_api.repositories.UserRepository;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 
@@ -43,7 +44,8 @@ public class AuthService {
     public TokenResponseDTO login(LoginDTO loginData){
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginData.getUsername(), loginData.getPassword()));
         //Buscar user en la base de datos para generar el token
-        User user = userRepository.findByUsername(loginData.getUsername()).orElseThrow();
+        User user = userRepository.findByUsername(loginData.getUsername())
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
         String token = jwtService.createToken(user);
         return new TokenResponseDTO(token);
     }

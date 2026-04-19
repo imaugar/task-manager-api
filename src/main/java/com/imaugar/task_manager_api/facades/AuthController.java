@@ -24,13 +24,11 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<TokenResponseDTO> register(@Valid @RequestBody RegisterDTO request) {
-            //TODO: Implementar captura de errores HTTP
         return ResponseEntity.ok(authService.register(request));
     }
 
     @PostMapping("/login")
     public ResponseEntity<TokenResponseDTO> login(@Valid @RequestBody LoginDTO request) {
-        //TODO: Implementar captura de errores HTTP
         return ResponseEntity.ok(authService.login(request));
     }
 }
